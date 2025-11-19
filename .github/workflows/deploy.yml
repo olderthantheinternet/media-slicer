@@ -36,7 +36,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          VITE_BASE_PATH: /media-slicer/
+          VITE_BASE_PATH: /
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
