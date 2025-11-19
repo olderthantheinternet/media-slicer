@@ -8,11 +8,9 @@ const getBase = () => {
   if (process.env.VITE_BASE_PATH) {
     return process.env.VITE_BASE_PATH
   }
-  // In production (GitHub Pages), use the repo name as base path
-  if (process.env.NODE_ENV === 'production') {
-    return '/media-slicer/'
-  }
-  // In development, use root
+  // For custom domain, use root path '/'
+  // For GitHub Pages with repo name, use '/media-slicer/'
+  // Default to '/' for custom domains
   return '/'
 }
 
