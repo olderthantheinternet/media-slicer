@@ -383,6 +383,9 @@ function MediaSlicer() {
                   <span>All processing happens in your browser - no server needed!</span>
                 </li>
               </ul>
+              <p className="text-xs text-muted-foreground mt-4 pt-4 border-t">
+                Powered by FFmpeg.wasm (FFmpeg 6.0 WebAssembly) via @ffmpeg/ffmpeg 0.12.6
+              </p>
             </div>
           </CardContent>
         </>
