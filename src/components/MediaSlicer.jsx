@@ -26,13 +26,23 @@ function MediaSlicer() {
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0]
-    if (!selectedFile) return
+    if (!selectedFile) {
+      // Reset input value if no file selected (user cancelled)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+      return
+    }
 
     setError('')
     
     // Validate file type
     if (!isSupportedMediaFile(selectedFile)) {
       setError('Unsupported file format. Please select a media file (mp4, mp3, mov, wav, etc.)')
+      // Reset input on error
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
       return
     }
 
@@ -40,11 +50,31 @@ function MediaSlicer() {
     const maxSize = 500 * 1024 * 1024 // 500MB
     if (selectedFile.size > maxSize) {
       setError('File size too large. Maximum size is 500MB for browser processing.')
+      // Reset input on error
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
       return
     }
 
     setFile(selectedFile)
     setStatus('File selected. Ready to process.')
+  }
+
+  const handleFileAreaClick = (e) => {
+    if (isProcessing) return
+    // Only open file picker if no file is selected, or allow changing file
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleChangeFile = (e) => {
+    e.stopPropagation()
+    if (fileInputRef.current && !isProcessing) {
+      fileInputRef.current.value = ''
+      fileInputRef.current.click()
+    }
   }
 
   const handleProcess = async () => {
@@ -213,44 +243,54 @@ function MediaSlicer() {
           <CardContent className="space-y-6">
             {/* File Upload */}
             <div className="space-y-2">
-              <label className="block">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="audio/*,video/*"
-                  onChange={handleFileSelect}
-                  disabled={isProcessing}
-                  className="hidden"
-                />
-                <div
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
-                    file
-                      ? "border-primary bg-primary/5"
-                      : "border-muted-foreground/25 hover:border-primary/50 hover:bg-accent/50",
-                    isProcessing && "opacity-50 cursor-not-allowed"
-                  )}
-                  onClick={() => !isProcessing && fileInputRef.current?.click()}
-                >
-                  {file ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <File className="h-12 w-12 text-primary" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*,video/*"
+                onChange={handleFileSelect}
+                disabled={isProcessing}
+                className="hidden"
+              />
+              <div
+                className={cn(
+                  "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+                  file
+                    ? "border-primary bg-primary/5"
+                    : "border-muted-foreground/25 hover:border-primary/50 hover:bg-accent/50 cursor-pointer",
+                  isProcessing && "opacity-50 cursor-not-allowed"
+                )}
+                onClick={!file ? handleFileAreaClick : undefined}
+              >
+                {file ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <File className="h-12 w-12 text-primary" />
+                    <div className="flex flex-col items-center gap-1">
                       <span className="font-medium text-lg">{file.name}</span>
                       <span className="text-sm text-muted-foreground">
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </span>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <Upload className="h-12 w-12 text-muted-foreground" />
-                      <span className="font-medium text-lg">Click to select a media file</span>
-                      <span className="text-sm text-muted-foreground">
-                        Supports: MP4, MP3, MOV, WAV, and more
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleChangeFile}
+                      disabled={isProcessing}
+                      className="mt-2"
+                    >
+                      Change File
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className="h-12 w-12 text-muted-foreground" />
+                    <span className="font-medium text-lg">Click to select a media file</span>
+                    <span className="text-sm text-muted-foreground">
+                      Supports: MP4, MP3, MOV, WAV, and more
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Segment Length Input */}
