@@ -4,10 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Media Slicer - Split Audio/Video Files</title>
+    <style>
+      /* Loading fallback - shows if JS hasn't loaded */
+      #root:empty::before {
+        content: "Loading Media Slicer...";
+        display: block;
+        padding: 20px;
+        text-align: center;
+        font-family: sans-serif;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <noscript>
+      <div style="padding: 20px; text-align: center;">
+        <h1>JavaScript Required</h1>
+        <p>This application requires JavaScript to run. Please enable JavaScript in your browser.</p>
+      </div>
+    </noscript>
   </body>
 </html>
 
