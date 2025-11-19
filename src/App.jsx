@@ -4,7 +4,7 @@ import { Twitter } from 'lucide-react'
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] py-8 px-4 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-8 px-4 flex flex-col">
       <div className="max-w-4xl mx-auto flex-1 w-full">
         <MediaSlicer />
       </div>
@@ -17,7 +17,7 @@ function App() {
             href="https://x.com/hthighway"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 hover:text-orange-400 transition-colors"
           >
             <Twitter className="h-4 w-4" />
             <span>@hthighway</span>
