@@ -2,7 +2,13 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useFFmpeg } from '../hooks/useFFmpeg'
 import { sanitizeFilename, isSupportedMediaFile, getFileExtension } from '../utils/fileUtils'
 import JSZip from 'jszip'
-import './MediaSlicer.css'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Progress } from './ui/progress'
+import { Alert, AlertDescription } from './ui/alert'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
+import { Loader2, File, Upload, AlertCircle, CheckCircle2, Info } from 'lucide-react'
+import { cn } from '../lib/utils'
 
 function MediaSlicer() {
   const [file, setFile] = useState(null)
@@ -188,108 +194,161 @@ function MediaSlicer() {
   }
 
   return (
-    <div className="media-slicer">
-      <div className="slicer-card">
-        {!isLoaded && (
-          <div className="loading-section">
-            <div className="spinner"></div>
-            <p>Loading FFmpeg (this may take a moment on first load)...</p>
-          </div>
-        )}
+    <Card className="w-full max-w-2xl mx-auto shadow-xl">
+      {!isLoaded && (
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Loading FFmpeg (this may take a moment on first load)...</p>
+        </CardContent>
+      )}
 
-        {isLoaded && (
-          <>
-            <div className="file-upload-section">
-              <label className="file-label">
+      {isLoaded && (
+        <>
+          <CardHeader>
+            <CardTitle className="text-3xl">Media Slicer</CardTitle>
+            <CardDescription>
+              Split your audio and video files into segments - 100% browser-based
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* File Upload */}
+            <div className="space-y-2">
+              <label className="block">
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="audio/*,video/*"
                   onChange={handleFileSelect}
                   disabled={isProcessing}
-                  className="file-input"
+                  className="hidden"
                 />
-                <div className="file-input-display">
+                <div
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
+                    file
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-primary/50 hover:bg-accent/50",
+                    isProcessing && "opacity-50 cursor-not-allowed"
+                  )}
+                  onClick={() => !isProcessing && fileInputRef.current?.click()}
+                >
                   {file ? (
-                    <div className="file-info">
-                      <span className="file-name">📄 {file.name}</span>
-                      <span className="file-size">
+                    <div className="flex flex-col items-center gap-2">
+                      <File className="h-12 w-12 text-primary" />
+                      <span className="font-medium text-lg">{file.name}</span>
+                      <span className="text-sm text-muted-foreground">
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </span>
                     </div>
                   ) : (
-                    <div className="file-placeholder">
-                      <span>📁 Click to select a media file</span>
-                      <small>Supports: MP4, MP3, MOV, WAV, and more</small>
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="h-12 w-12 text-muted-foreground" />
+                      <span className="font-medium text-lg">Click to select a media file</span>
+                      <span className="text-sm text-muted-foreground">
+                        Supports: MP4, MP3, MOV, WAV, and more
+                      </span>
                     </div>
                   )}
                 </div>
               </label>
             </div>
 
-            <div className="segment-config">
-              <label className="config-label">
-                Segment Length (seconds):
-                <input
-                  type="number"
-                  min="1"
-                  max="3600"
-                  value={segmentLength}
-                  onChange={(e) => setSegmentLength(parseInt(e.target.value) || 30)}
-                  disabled={isProcessing}
-                  className="segment-input"
-                />
+            {/* Segment Length Input */}
+            <div className="space-y-2">
+              <label htmlFor="segment-length" className="text-sm font-medium">
+                Segment Length (seconds)
               </label>
+              <Input
+                id="segment-length"
+                type="number"
+                min="1"
+                max="3600"
+                value={segmentLength}
+                onChange={(e) => setSegmentLength(parseInt(e.target.value) || 30)}
+                disabled={isProcessing}
+                className="w-full"
+              />
             </div>
 
+            {/* Error Alert */}
             {error && (
-              <div className="error-message">
-                ⚠️ {error}
-              </div>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
 
-            {status && (
-              <div className="status-message">
-                {status}
-              </div>
+            {/* Status Alert */}
+            {status && !error && (
+              <Alert>
+                {status.includes('Success') ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Info className="h-4 w-4" />
+                )}
+                <AlertDescription>{status}</AlertDescription>
+              </Alert>
             )}
 
+            {/* Progress Bar */}
             {isProcessing && (
-              <div className="progress-section">
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${progress}%` }}
-                  ></div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Processing...</span>
+                  <span className="font-medium">{Math.round(progress)}%</span>
                 </div>
-                <span className="progress-text">{Math.round(progress)}%</span>
+                <Progress value={progress} className="h-2" />
               </div>
             )}
 
-            <button
+            {/* Process Button */}
+            <Button
               onClick={handleProcess}
               disabled={!file || isProcessing || !isLoaded}
-              className="process-button"
+              className="w-full"
+              size="lg"
             >
-              {isProcessing ? 'Processing...' : 'Slice & Download'}
-            </button>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Slice & Download'
+              )}
+            </Button>
 
-            <div className="info-section">
-              <h3>How it works:</h3>
-              <ul>
-                <li>Select a media file (audio or video)</li>
-                <li>Choose segment length in seconds</li>
-                <li>Click "Slice & Download" to process</li>
-                <li>Segments are automatically numbered and zipped</li>
-                <li>All processing happens in your browser - no server needed!</li>
+            {/* Info Section */}
+            <div className="pt-6 border-t space-y-3">
+              <h3 className="font-semibold text-lg">How it works:</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Select a media file (audio or video)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Choose segment length in seconds</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Click "Slice & Download" to process</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Segments are automatically numbered and zipped</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>All processing happens in your browser - no server needed!</span>
+                </li>
               </ul>
             </div>
-          </>
-        )}
-      </div>
-    </div>
+          </CardContent>
+        </>
+      )}
+    </Card>
   )
 }
 
 export default MediaSlicer
-

@@ -1,18 +1,14 @@
-import React, { useState, useRef } from 'react'
+import React from 'react'
 import MediaSlicer from './components/MediaSlicer'
-import './App.css'
 
 function App() {
   return (
-    <div className="App">
-      <header className="app-header">
-        <h1>🎬 Media Slicer</h1>
-        <p>Split your audio and video files into segments - 100% browser-based</p>
-      </header>
-      <MediaSlicer />
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <MediaSlicer />
+      </div>
     </div>
   )
 }
 
 export default App
-
