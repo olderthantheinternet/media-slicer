@@ -2,14 +2,18 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
     <title>Media Slicer</title>
     <script>
       // Single Page Apps for GitHub Pages
       // https://github.com/rafgraph/spa-github-pages
+      // Force HTTPS protocol
       var pathSegmentsToKeep = 1;
       var l = window.location;
+      var protocol = l.protocol === 'https:' ? 'https:' : 'https:';
       l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
         l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
         (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
